@@ -74,9 +74,10 @@ if boton_enviar:
                 pestana_curso = planilla.worksheet(curso)
                 pestana_curso.append_row([fecha_registro, nombre, telefono])
             
-            # Mensaje de éxito si todo salió bien
+            # Mensaje de éxito mejorado y agradecimiento
             st.success(f"¡Gloria a Dios! 🎉 {nombre}, te has inscrito exitosamente.")
-            st.balloons()
+            st.info("¡Gracias por anotarte! Nos alegra mucho tu decisión de seguir creciendo espiritualmente. Un servidor te contactará pronto por WhatsApp con más detalles.")
+            st.balloons() # ¡La lluvia de globos!
             
         except KeyError:
             st.warning("⚠️ Falta configurar la 'Llave de Google' en Streamlit Secrets.")
