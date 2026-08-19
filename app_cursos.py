@@ -34,21 +34,27 @@ with st.form("formulario_inscripcion", clear_on_submit=True):
     
     st.write("¿A qué cursos deseas anotarte? (Puedes elegir más de uno)")
     
-    # Casillas de verificación (Checkboxes) en lugar de un menú desplegable
+    # Casillas de verificación para los cursos
     curso_verdades = st.checkbox("VERDADES FUNDAMENTALES")
     curso_iglesia = st.checkbox("IGLESIA DISCIPULADORA")
     curso_apologetica = st.checkbox("APOLOGÉTICA")
     
     st.write("---") # Agregamos una línea visual separadora
-    st.subheader("Estado de Inscripción")
-    pago_realizado = st.checkbox("¿Ya realizaste el pago correspondiente?")
+    
+    st.subheader("PAGADO")
+    # Creamos dos columnas para poner los checks uno al lado del otro
+    col1, col2 = st.columns(2)
+    with col1:
+        pago_si = st.checkbox("SÍ")
+    with col2:
+        pago_no = st.checkbox("NO")
     
     # Botón para enviar
     boton_enviar = st.form_submit_button("Inscribirme")
 
 # 3. ¿Qué pasa cuando presionan el botón?
 if boton_enviar:
-    # Primero armamos una lista con los cursos que el usuario tildó
+    # Armamos la lista de cursos seleccionados
     cursos_seleccionados = []
     if curso_verdades:
         cursos_seleccionados.append("VERDADES FUNDAMENTALES")
@@ -67,38 +73,28 @@ if boton_enviar:
     elif pago_si and pago_no:
         st.error("Por favor, marca solo una opción en PAGADO (no ambas).")
     else:
-        # Aquí capturamos la fecha actual
+        # Capturamos fecha y estado de pago
         fecha_registro = datetime.now().strftime("%d/%m/%Y %H:%M")
-        
-        # Convertimos las casillas en la palabra exacta para tu planilla
         estado_pago = "Sí" if pago_si else "No"
         
         try:
-            # 1. Nos conectamos a Google
             cliente = conectar_google_sheets()
-            
-            # 2. Abrimos tu planilla
             planilla = cliente.open("Inscripciones Cursos")
             
-            # 3. Recorremos cada curso que la persona eligió y la anotamos en su pestaña
             for curso in cursos_seleccionados:
                 pestana_curso = planilla.worksheet(curso)
                 
-                # Magia para la Columna A: Calculamos el número "N"
-                # Contamos cuántas filas hay. Si solo están los títulos (1 fila), este será el alumno 1.
+                # Calculamos el número "N" de la fila
                 filas_actuales = len(pestana_curso.get_all_values())
                 numero_n = filas_actuales 
                 
-                # Armamos la fila exacta respetando tus 7 columnas:
-                # [A: "N", B: "Fecha", C: "Nombre", D: "Teléfono", E: "Pagado", F: "Usuario", G: "Obs."]
+                # Armamos la fila exacta con tus 7 columnas
                 fila_a_guardar = [numero_n, fecha_registro, nombre, telefono, estado_pago, "", ""]
-                
                 pestana_curso.append_row(fila_a_guardar)
             
-            # Mensaje de éxito mejorado y agradecimiento
             st.success(f"¡Gloria a Dios! 🎉 {nombre}, te has inscrito exitosamente.")
             st.info("¡Gracias por anotarte! Nos alegra mucho tu decisión de seguir creciendo espiritualmente. Un servidor te contactará pronto por WhatsApp con más detalles.")
-            st.balloons() # ¡La lluvia de globos!
+            st.balloons() # Lluvia de globos
             
         except KeyError:
             st.warning("⚠️ Falta configurar la 'Llave de Google' en Streamlit Secrets.")
