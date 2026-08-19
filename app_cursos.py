@@ -39,6 +39,10 @@ with st.form("formulario_inscripcion", clear_on_submit=True):
     curso_iglesia = st.checkbox("IGLESIA DISCIPULADORA")
     curso_apologetica = st.checkbox("APOLOGÉTICA")
     
+    st.write("---") # Agregamos una línea visual separadora
+    st.subheader("Estado de Inscripción")
+    pago_realizado = st.checkbox("¿Ya realizaste el pago correspondiente?")
+    
     # Botón para enviar
     boton_enviar = st.form_submit_button("Inscribirme")
 
@@ -62,6 +66,9 @@ if boton_enviar:
         # Aquí capturamos la fecha actual
         fecha_registro = datetime.now().strftime("%d/%m/%Y %H:%M")
         
+        # Convertimos la casilla en una palabra fácil de leer en tu planilla
+        estado_pago = "Sí" if pago_realizado else "No"
+        
         try:
             # 1. Nos conectamos a Google
             cliente = conectar_google_sheets()
@@ -72,7 +79,17 @@ if boton_enviar:
             # 3. Recorremos cada curso que la persona eligió y la anotamos en su pestaña
             for curso in cursos_seleccionados:
                 pestana_curso = planilla.worksheet(curso)
-                pestana_curso.append_row([fecha_registro, nombre, telefono])
+                
+                # Magia para la Columna A: Calculamos el número "N"
+                # Contamos cuántas filas hay. Si solo están los títulos (1 fila), este será el alumno 1.
+                filas_actuales = len(pestana_curso.get_all_values())
+                numero_n = filas_actuales 
+                
+                # Armamos la fila exacta respetando tus 7 columnas:
+                # [A: "N", B: "Fecha", C: "Nombre", D: "Teléfono", E: "Pagado", F: "Usuario", G: "Obs."]
+                fila_a_guardar = [numero_n, fecha_registro, nombre, telefono, estado_pago, "", ""]
+                
+                pestana_curso.append_row(fila_a_guardar)
             
             # Mensaje de éxito mejorado y agradecimiento
             st.success(f"¡Gloria a Dios! 🎉 {nombre}, te has inscrito exitosamente.")
