@@ -62,12 +62,16 @@ if boton_enviar:
         st.error("Por favor, escribe tu nombre antes de enviarlo.")
     elif len(cursos_seleccionados) == 0:
         st.error("Por favor, selecciona al menos un curso para inscribirte.")
+    elif not pago_si and not pago_no:
+        st.error("Por favor, marca SÍ o NO en la sección de PAGADO.")
+    elif pago_si and pago_no:
+        st.error("Por favor, marca solo una opción en PAGADO (no ambas).")
     else:
         # Aquí capturamos la fecha actual
         fecha_registro = datetime.now().strftime("%d/%m/%Y %H:%M")
         
-        # Convertimos la casilla en una palabra fácil de leer en tu planilla
-        estado_pago = "Sí" if pago_realizado else "No"
+        # Convertimos las casillas en la palabra exacta para tu planilla
+        estado_pago = "Sí" if pago_si else "No"
         
         try:
             # 1. Nos conectamos a Google
